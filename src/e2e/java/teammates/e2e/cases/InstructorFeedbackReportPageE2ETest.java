@@ -72,7 +72,10 @@ public class InstructorFeedbackReportPageE2ETest extends BaseE2ETestCase {
         testData = loadDataBundle("/InstructorFeedbackReportPageE2ETest.json");
         studentToEmail = testData.students.get("Emily");
         studentToEmail.setEmail(TestProperties.TEST_EMAIL);
+        removeAndRestoreDataBundle(testData);
 
+        sqlTestData = removeAndRestoreSqlDataBundle(
+                loadSqlDataBundle("/InstructorFeedbackReportPageE2ETest_SqlEntities.json"));
         instructor = testData.instructors.get("tm.e2e.IFRep.instr");
         FeedbackSessionAttributes fileSession = testData.feedbackSessions.get("Open Session 2");
         fileName = "/" + fileSession.getCourseId() + "_" + fileSession.getFeedbackSessionName() + "_result.csv";
@@ -92,7 +95,8 @@ public class InstructorFeedbackReportPageE2ETest extends BaseE2ETestCase {
                 .withCourseId(course.getId())
                 .withSessionName(feedbackSession.getFeedbackSessionName());
 
-        // -------------------------------------- Prepare responses -------------------------------------- //
+        // -------------------------------------- Prepare responses
+        // -------------------------------------- //
         organiseResponses(course.getId());
 
         qn2 = testData.feedbackQuestions.get("qn2");
@@ -108,10 +112,10 @@ public class InstructorFeedbackReportPageE2ETest extends BaseE2ETestCase {
         StudentAttributes noResponseStudent = testData.students.get("Benny");
         StudentAttributes teammate = testData.students.get("Alice");
         missingResponse = getMissingResponse(qn2.getQuestionNumber(), noResponseStudent, teammate);
-        qn2GiverResponsesWithMissing =
-                addMissingResponseToMap(qn2GiverResponses, missingResponse, noResponseStudent.getEmail());
-        qn2RecipientResponsesWithMissing =
-                addMissingResponseToMap(qn2RecipientResponses, missingResponse, teammate.getEmail());
+        qn2GiverResponsesWithMissing = addMissingResponseToMap(qn2GiverResponses, missingResponse,
+                noResponseStudent.getEmail());
+        qn2RecipientResponsesWithMissing = addMissingResponseToMap(qn2RecipientResponses, missingResponse,
+                teammate.getEmail());
 
         responseWithComment = testData.feedbackResponses.get("qn2response1");
         comment = testData.feedbackResponseComments.get("qn2Comment2");
@@ -119,7 +123,8 @@ public class InstructorFeedbackReportPageE2ETest extends BaseE2ETestCase {
 
     @Override
     public void testAll() {
-        // not used; run individual test cases instead as the entire test cases take > 5 minutes to run
+        // not used; run individual test cases instead as the entire test cases take > 5
+        // minutes to run
     }
 
     @Test
@@ -130,8 +135,8 @@ public class InstructorFeedbackReportPageE2ETest extends BaseE2ETestCase {
         ______TS("Question view: no missing responses");
         resultsPage.includeMissingResponses(false);
 
-        for (Map.Entry<FeedbackQuestionAttributes, List<FeedbackResponseAttributes>> entry
-                : questionToResponses.entrySet()) {
+        for (Map.Entry<FeedbackQuestionAttributes, List<FeedbackResponseAttributes>> entry : questionToResponses
+                .entrySet()) {
             resultsPage.verifyQnViewResponses(entry.getKey(), entry.getValue(), instructors, students);
         }
         resultsPage.verifyQnViewStats(qn2, qn2Responses, instructors, students);
@@ -358,7 +363,8 @@ public class InstructorFeedbackReportPageE2ETest extends BaseE2ETestCase {
                 "Session Name," + feedbackSession.getFeedbackSessionName(),
                 "Question 1,What part of the product did this teammate contribute most to?",
                 "Participants who have not responded to any question",
-                String.format("%s,%s,%s", studentToEmail.getTeam(), studentToEmail.getName(), studentToEmail.getEmail()));
+                String.format("%s,%s,%s", studentToEmail.getTeam(), studentToEmail.getName(),
+                        studentToEmail.getEmail()));
         verifyDownloadedFile(fileName, expectedContent);
 
         ______TS("verify no response panel details");
@@ -425,7 +431,8 @@ public class InstructorFeedbackReportPageE2ETest extends BaseE2ETestCase {
         });
     }
 
-    private String getTeamName(FeedbackParticipantType type, String participant, Collection<StudentAttributes> students) {
+    private String getTeamName(FeedbackParticipantType type, String participant,
+            Collection<StudentAttributes> students) {
         if (type.equals(FeedbackParticipantType.NONE)) {
             return "No Specific Team";
         } else if (type.equals(FeedbackParticipantType.TEAMS)) {
@@ -447,7 +454,7 @@ public class InstructorFeedbackReportPageE2ETest extends BaseE2ETestCase {
     }
 
     private Map<String, List<FeedbackResponseAttributes>> getResponsesByTeam(FeedbackQuestionAttributes question,
-                                                                             boolean isGiver) {
+            boolean isGiver) {
         Map<String, List<FeedbackResponseAttributes>> userToResponses;
         if (isGiver) {
             userToResponses = questionToGiverToResponses.get(question);
@@ -472,8 +479,8 @@ public class InstructorFeedbackReportPageE2ETest extends BaseE2ETestCase {
     }
 
     private Map<String, List<FeedbackResponseAttributes>> addMissingResponseToMap(
-                                         Map<String, List<FeedbackResponseAttributes>> map,
-                                         FeedbackResponseAttributes missingResponse, String key) {
+            Map<String, List<FeedbackResponseAttributes>> map,
+            FeedbackResponseAttributes missingResponse, String key) {
         Map<String, List<FeedbackResponseAttributes>> copy = map.entrySet().stream()
                 .collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue().stream().collect(Collectors.toList())));
         if (!copy.containsKey(key)) {
@@ -498,59 +505,61 @@ public class InstructorFeedbackReportPageE2ETest extends BaseE2ETestCase {
     }
 
     private List<FeedbackResponseAttributes> filterResponsesBySection(List<FeedbackResponseAttributes> responses,
-                                                                     String section) {
+            String section) {
         return responses.stream()
                 .filter(r1 -> r1.getGiverSection().equals(section) || r1.getRecipientSection().equals(section))
                 .collect(Collectors.toList());
     }
 
-    private FeedbackResponseAttributes getMissingResponse(int qnNum, StudentAttributes giver, StudentAttributes recipient) {
-        return FeedbackResponseAttributes.builder(Integer.toString(qnNum), giver.getEmail(), recipient.getEmail()).build();
+    private FeedbackResponseAttributes getMissingResponse(int qnNum, StudentAttributes giver,
+            StudentAttributes recipient) {
+        return FeedbackResponseAttributes.builder(Integer.toString(qnNum), giver.getEmail(), recipient.getEmail())
+                .build();
     }
 
     private void verifyGqrViewResponses(FeedbackQuestionAttributes question,
-                                        Map<String, List<FeedbackResponseAttributes>> giverToResponses,
-                                        boolean isGroupedByTeam) {
+            Map<String, List<FeedbackResponseAttributes>> giverToResponses,
+            boolean isGroupedByTeam) {
         for (Map.Entry<String, List<FeedbackResponseAttributes>> entry : giverToResponses.entrySet()) {
             resultsPage.verifyGqrViewResponses(question, entry.getValue(), isGroupedByTeam, instructors, students);
         }
     }
 
     private void verifyRqgViewResponses(FeedbackQuestionAttributes question,
-                                        Map<String, List<FeedbackResponseAttributes>> recipientToResponses,
-                                        boolean isGroupedByTeam) {
+            Map<String, List<FeedbackResponseAttributes>> recipientToResponses,
+            boolean isGroupedByTeam) {
         for (Map.Entry<String, List<FeedbackResponseAttributes>> entry : recipientToResponses.entrySet()) {
             resultsPage.verifyRqgViewResponses(question, entry.getValue(), isGroupedByTeam, instructors, students);
         }
     }
 
     private void verifyGrqViewResponses(FeedbackQuestionAttributes question,
-                                        Map<String, List<FeedbackResponseAttributes>> giverToResponses,
-                                        boolean isGroupedByTeam) {
+            Map<String, List<FeedbackResponseAttributes>> giverToResponses,
+            boolean isGroupedByTeam) {
         for (Map.Entry<String, List<FeedbackResponseAttributes>> entry : giverToResponses.entrySet()) {
             resultsPage.verifyGrqViewResponses(question, entry.getValue(), isGroupedByTeam, instructors, students);
         }
     }
 
     private void verifyRgqViewResponses(FeedbackQuestionAttributes question,
-                                        Map<String, List<FeedbackResponseAttributes>> recipientToResponses,
-                                        boolean isGroupedByTeam) {
+            Map<String, List<FeedbackResponseAttributes>> recipientToResponses,
+            boolean isGroupedByTeam) {
         for (Map.Entry<String, List<FeedbackResponseAttributes>> entry : recipientToResponses.entrySet()) {
             resultsPage.verifyRgqViewResponses(question, entry.getValue(), isGroupedByTeam, instructors, students);
         }
     }
 
     private void verifyRqgViewStats(FeedbackQuestionAttributes question,
-                                    Map<String, List<FeedbackResponseAttributes>> responses,
-                                    boolean isGroupedByTeam) {
+            Map<String, List<FeedbackResponseAttributes>> responses,
+            boolean isGroupedByTeam) {
         for (Map.Entry<String, List<FeedbackResponseAttributes>> entry : responses.entrySet()) {
             resultsPage.verifyRqgViewStats(question, entry.getValue(), isGroupedByTeam, instructors, students);
         }
     }
 
     private void verifyGqrViewStats(FeedbackQuestionAttributes question,
-                                    Map<String, List<FeedbackResponseAttributes>> responses,
-                                    boolean isGroupedByTeam) {
+            Map<String, List<FeedbackResponseAttributes>> responses,
+            boolean isGroupedByTeam) {
         for (Map.Entry<String, List<FeedbackResponseAttributes>> entry : responses.entrySet()) {
             resultsPage.verifyGqrViewStats(question, entry.getValue(), isGroupedByTeam, instructors, students);
         }
@@ -567,8 +576,8 @@ public class InstructorFeedbackReportPageE2ETest extends BaseE2ETestCase {
         questionToGiverToResponses = new HashMap<>();
         questionToRecipientToResponses = new HashMap<>();
 
-        for (Map.Entry<FeedbackQuestionAttributes, List<FeedbackResponseAttributes>> entry
-                : questionToResponses.entrySet()) {
+        for (Map.Entry<FeedbackQuestionAttributes, List<FeedbackResponseAttributes>> entry : questionToResponses
+                .entrySet()) {
             FeedbackQuestionAttributes question = entry.getKey();
             List<FeedbackResponseAttributes> responses = entry.getValue();
 
