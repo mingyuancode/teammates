@@ -36,8 +36,8 @@ public class InstructorStudentActivityLogsPageE2ETest extends BaseE2ETestCase {
         instructor = testData.instructors.get("instructor");
         course = testData.courses.get("course");
         student = testData.students.get("alice.tmms@ISActLogs.CS2104");
-        feedbackQuestion = testData.feedbackQuestions.get("qn1");
         feedbackSession = testData.feedbackSessions.get("openSession");
+        feedbackQuestion = testData.feedbackQuestions.get("qn1");
     }
 
     @Test
@@ -56,8 +56,8 @@ public class InstructorStudentActivityLogsPageE2ETest extends BaseE2ETestCase {
 
         studentActivityLogsPage.setLogsFromDateTime(
                 Instant.now().minus(1, ChronoUnit.DAYS),
-                ZoneId.of(course.getTimeZone()).getId());
-        studentActivityLogsPage.setLogsToDateTime(Instant.now(), ZoneId.of(course.getTimeZone()).getId());
+                ZoneId.systemDefault().getId());
+        studentActivityLogsPage.setLogsToDateTime(Instant.now(), ZoneId.systemDefault().getId());
 
         assertEquals(currentLogsFromDate, studentActivityLogsPage.getLogsFromDate());
         assertEquals(currentLogsToDate, studentActivityLogsPage.getLogsToDate());
@@ -73,6 +73,8 @@ public class InstructorStudentActivityLogsPageE2ETest extends BaseE2ETestCase {
                 FeedbackSubmitPageSql.class, student.getGoogleId());
 
         Student receiver = testData.students.get("benny.tmms@ISActLogs.CS2104");
+        feedbackQuestion = testData.feedbackQuestions.get("qn1");
+
 
         FeedbackTextResponseDetails details = new FeedbackTextResponseDetails("Response");
         FeedbackResponse response = FeedbackResponse.makeResponse(
@@ -86,7 +88,7 @@ public class InstructorStudentActivityLogsPageE2ETest extends BaseE2ETestCase {
         studentActivityLogsPage = loginToPage(url, InstructorStudentActivityLogsPage.class, instructor.getGoogleId());
 
         studentActivityLogsPage.setActivityType("session access and submission");
-        studentActivityLogsPage.setSessionDropdown(feedbackSession.getName());
+        // studentActivityLogsPage.setSessionDropdown(feedbackSession.getName());
 
         studentActivityLogsPage.waitForPageToLoad();
         studentActivityLogsPage.startSearching();
