@@ -75,7 +75,6 @@ public class InstructorStudentActivityLogsPageE2ETest extends BaseE2ETestCase {
         Student receiver = testData.students.get("benny.tmms@ISActLogs.CS2104");
         feedbackQuestion = testData.feedbackQuestions.get("qn1");
 
-
         FeedbackTextResponseDetails details = new FeedbackTextResponseDetails("Response");
         FeedbackResponse response = FeedbackResponse.makeResponse(
                 feedbackQuestion, student.getEmail(), student.getSection(),
@@ -88,12 +87,9 @@ public class InstructorStudentActivityLogsPageE2ETest extends BaseE2ETestCase {
         studentActivityLogsPage = loginToPage(url, InstructorStudentActivityLogsPage.class, instructor.getGoogleId());
 
         studentActivityLogsPage.setActivityType("session access and submission");
-        // studentActivityLogsPage.setSessionDropdown(feedbackSession.getName());
-
         studentActivityLogsPage.waitForPageToLoad();
         studentActivityLogsPage.startSearching();
-        studentActivityLogsPage.waitForLogsToLoad();
 
-        assertTrue(studentActivityLogsPage.isLogPresentForSession(feedbackSession.getName()));
+        assertTrue(studentActivityLogsPage.isLogPresentForSession(feedbackQuestion.getFeedbackSessionName()));
     }
 }
